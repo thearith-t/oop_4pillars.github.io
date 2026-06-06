@@ -1,0 +1,1282 @@
+---
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    slide-number: true
+    transition: fade
+    font-family: 'Trebuchet MS'
+    scrollable: true
+---
+
+<style>
+body { font-family: 'Trebuchet MS', sans-serif; }
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 { color: #C41E3A; }
+.reveal { font-family: 'Trebuchet MS', sans-serif; }
+.reveal pre { font-size: 0.72em; }
+.big-center { text-align:center; font-size: 1.4em; line-height: 1.6; margin-top: 30px; }
+
+/* Pillar banner */
+.pillar-banner {
+  text-align:center;
+  margin-top: 30px;
+  padding: 28px;
+  border-radius: 14px;
+  background: rgba(196, 30, 58, 0.06);
+  border: 2px solid #C41E3A;
+}
+.pillar-banner .num {
+  font-size: 1.1em;
+  letter-spacing: 3px;
+  color: #8B0000;
+  font-weight: 700;
+}
+.pillar-banner .name {
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #C41E3A;
+  margin: 8px 0;
+}
+.pillar-banner .tag {
+  font-size: 1.1em;
+  color: #555;
+}
+
+/* QCM Styles */
+.qcm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 24px;
+}
+.qcm-option {
+  background: #f0f4f8;
+  border: 2px solid #bdc3c7;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-family: 'Trebuchet MS', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.qcm-option:hover { border-color: #C41E3A; background: #fbebed; }
+.qcm-option.correct {
+  background: #d5f5e3;
+  border-color: #27ae60;
+  color: #1e8449;
+  font-weight: 700;
+}
+.qcm-option.wrong {
+  background: #fde8e8;
+  border-color: #e74c3c;
+  color: #c0392b;
+}
+.qcm-option .badge {
+  font-size: 1.2em;
+  min-width: 24px;
+}
+.qcm-label {
+  font-weight: 700;
+  color: #C41E3A;
+  margin-right: 4px;
+}
+.qcm-question {
+  font-size: 1.25em;
+  font-weight: 600;
+  color: #2c3e50;
+  background: #fbebed;
+  border-left: 5px solid #C41E3A;
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.q-number {
+  font-size: 0.85em;
+  color: #7f8c8d;
+  margin-bottom: 6px;
+}
+</style>
+
+<script>
+function qcm(optionEl, isCorrect) {
+  const grid = optionEl.closest('.qcm-grid');
+  if (grid.dataset.answered) return;
+  grid.dataset.answered = "true";
+  const opts = grid.querySelectorAll('.qcm-option');
+  opts.forEach(o => {
+    o.style.cursor = 'default';
+    if (o === optionEl) {
+      o.classList.add(isCorrect ? 'correct' : 'wrong');
+      o.querySelector('.badge').textContent = isCorrect ? '✅' : '❌';
+    } else if (o.dataset.correct === "true") {
+      o.classList.add('correct');
+      o.querySelector('.badge').textContent = '✅';
+    }
+  });
+}
+</script>
+
+<div style="text-align:center; margin-top: 40px; line-height: 1.4;">
+  <h1 style="font-size: 2.5em; font-weight: 700; color: #C41E3A; margin-bottom: 10px;">
+    Programming Language II
+  </h1>
+  <h2 style="font-size: 1.6em; font-weight: 500; color: #555;">
+    The Four Pillars of Object-Oriented Programming
+  </h2>
+  <div style="border-bottom: 4px solid #C41E3A; width: 45%; margin: 18px auto;"></div>
+  <h3 style="margin-top: 25px; font-weight: 700; color: #050E3C">
+    By: MIN Sothearith
+  </h3>
+  <h4 style="font-weight: 700; color: #666;">
+    Phnom Penh International University
+  </h4>
+</div>
+
+## Today's Session
+
+Last week we learned how to **build a class** and make **objects**.
+
+Today we go one step further: the **four pillars** that hold up all of OOP.
+
+::: {.callout-note}
+## Plan for today
+1. **Review** -- what we studied last week (first, slowly)
+2. **Pillar 1 -- Encapsulation** -- protecting data
+3. **Pillar 2 -- Inheritance** -- reusing a class
+4. **Pillar 3 -- Polymorphism** -- same action, different behaviour
+5. **Pillar 4 -- Abstraction** -- hiding the complex details
+:::
+
+::: {.callout-tip}
+We take each pillar **one at a time**. There is **no rush**. First we ask *what* it is, then *why* we need it.
+:::
+
+---
+
+# Part 0 -- Review of Last Week
+
+---
+
+## Let's remember where we stopped
+
+Before new ideas, let's make sure last week is **solid**.
+
+Last week we answered four questions:
+
+::: {.callout-note}
+- **Why** do we need OOP?
+- **What** is a class?
+- **What** is an object?
+- How do we **build** a class with data and behaviour?
+:::
+
+::: {.callout-tip}
+The next few slides are a **quick refresher**. If any part feels unclear, stop me -- this is the foundation for today.
+:::
+
+## Review 1 -- Why OOP?
+
+Without OOP, **data** and **actions** get separated and messy:
+
+```python
+dog1_name = "Rex"
+dog1_age  = 3
+dog2_name = "Bella"
+dog2_age  = 5
+
+def bark(name):
+    print(f"{name} says Woof!")
+```
+
+::: {.callout-important}
+The dog's data is in loose variables; the `bark` action is far away. Nothing keeps them together.
+:::
+
+<div class="big-center">
+OOP bundles <strong>data + actions</strong> into one unit: an <strong>object</strong>.
+</div>
+
+## Review 2 -- Class = blueprint
+
+A **class** is a **blueprint** -- a plan you write **once**.
+
+```python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+```
+
+| Blueprint (the plan) | Real things made from it |
+|----------------------|--------------------------|
+| `Dog` class | Rex, Bella, Max |
+
+::: {.callout-note}
+The class is **not** a real dog. It is the *plan* used to make dogs.
+:::
+
+## Review 3 -- Object = the real thing
+
+An **object** is a real thing **built** from the class.
+
+```python
+rex   = Dog("Rex", 3)      # object 1
+bella = Dog("Bella", 5)    # object 2
+```
+
+- One blueprint → **many** objects
+- Each object holds **its own** data
+- Changing Rex's age does **not** change Bella's age
+
+::: {.callout-note}
+Another word for object is **instance**. "Rex is an instance of `Dog`."
+:::
+
+## Review 4 -- `__init__` and `self`
+
+```python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+```
+
+- `__init__` runs **automatically** when we create an object -- the **constructor**
+- It **sets up** the starting data
+- `self` means **"this particular object"** (this dog)
+
+::: {.callout-important}
+`self.name = name` stores the name **inside this dog**. Every method's first parameter is `self`.
+:::
+
+## Review 5 -- Attributes and methods
+
+```python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name          # attributes = data
+        self.age = age
+
+    def bark(self):               # method = behaviour
+        print(f"{self.name} says Woof!")
+```
+
+- **Attribute** = data stored in the object → read with `rex.name`
+- **Method** = a function inside the class → the object's behaviour
+
+```python
+rex = Dog("Rex", 3)
+print(rex.name)   # Rex
+rex.bark()        # Rex says Woof!
+```
+
+## Review 6 -- Printing nicely with `__str__`
+
+```python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"Dog: {self.name}, age {self.age}"
+
+rex = Dog("Rex", 3)
+print(rex)        # Dog: Rex, age 3
+```
+
+::: {.callout-note}
+`__str__` teaches the object **how to print itself**. It must **return** a string.
+:::
+
+## Review -- summary
+
+| Idea | In one sentence |
+|------|-----------------|
+| **Why OOP** | Keep data and actions **together** |
+| **Class** | A **blueprint** -- describe once |
+| **Object** | A real thing **built** from the class |
+| **`__init__`** | Runs automatically; **sets up** the data |
+| **`self`** | Means **"this particular object"** |
+| **Attribute** | Data in an object -- `obj.name` |
+| **Method** | A function inside the class -- behaviour |
+| **`__str__`** | Teaches the object to **print itself** |
+
+::: {.callout-tip}
+If this table makes sense, you are ready for today's four pillars. 👍
+:::
+
+## Quick check before we continue
+
+<div class="q-number">Warm-up -- Last week</div>
+<div class="qcm-question">In <code>rex = Dog("Rex", 3)</code>, what is <code>rex</code>?</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">A.</span> A class (a blueprint)</button>
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">B.</span> An object (an instance of Dog)</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> A method</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> An attribute</button>
+</div>
+
+---
+
+# The Four Pillars -- The Big Picture
+
+---
+
+## What are the "four pillars"?
+
+A **pillar** is a column that **holds up** a building.
+
+OOP stands on **four** of them. Every good class design uses these ideas.
+
+::: {.callout-note}
+## The four pillars
+1. **Encapsulation** -- keep data safe inside the object
+2. **Inheritance** -- a new class reuses an existing one
+3. **Polymorphism** -- the same action behaves differently
+4. **Abstraction** -- hide complex details, show a simple interface
+:::
+
+::: {.callout-tip}
+Don't memorise the four words yet. We will **build understanding** of each, one at a time.
+:::
+
+## How we will study each pillar
+
+For **every** pillar we ask the same three questions:
+
+::: {.callout-note}
+1. **What** is it? (a simple definition)
+2. **Why** do we need it? (the problem it solves)
+3. **How** do we do it in Python? (a small example)
+:::
+
+::: {.callout-tip}
+Same recipe four times. Once the rhythm is familiar, each pillar feels easy.
+:::
+
+---
+
+# Pillar 1 -- Encapsulation
+
+---
+
+## Pillar 1
+
+<div class="pillar-banner">
+  <div class="num">PILLAR 1 OF 4</div>
+  <div class="name">Encapsulation</div>
+  <div class="tag">Keep an object's data <strong>safe inside</strong> the object.</div>
+</div>
+
+::: {.callout-note}
+The word comes from **"capsule"** -- a small container that holds something and protects it.
+:::
+
+## What is encapsulation?
+
+<div class="big-center">
+Encapsulation means <strong>bundling data with the methods</strong><br>that work on it, and <strong>controlling access</strong> to that data.
+</div>
+
+In simple words:
+
+- The object keeps its data **inside**
+- The outside world must go **through the object's methods** to change it
+- The object can **protect itself** from bad data
+
+::: {.callout-note}
+Think of a **medicine capsule**: the powder is sealed inside. You don't touch it directly.
+:::
+
+## Why do we need it? -- the problem
+
+Without protection, **anyone** can change the data to **anything**:
+
+```python
+class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+acc = BankAccount("Alice", 100)
+acc.balance = -999999      # nothing stops this!
+```
+
+::: {.callout-important}
+A bank balance should **never** become negative like this. But our code allows it. The data is **unprotected**.
+:::
+
+## Real-life analogy
+
+Think of an **ATM machine**.
+
+- You **cannot** open it and grab the cash directly
+- You must use **buttons**: deposit, withdraw, check balance
+- The machine **checks the rules** (enough balance? correct PIN?)
+
+::: {.callout-note}
+Encapsulation makes your object behave like an ATM: data is **inside**, access is through **safe methods**.
+:::
+
+## How: step 1 -- mark data as private
+
+In Python, we put **two underscores** `__` in front of an attribute to make it **private**:
+
+```python
+class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.__balance = balance      # private!  note the __
+```
+
+```python
+acc = BankAccount("Alice", 100)
+print(acc.__balance)     # AttributeError -- cannot reach it directly
+```
+
+::: {.callout-note}
+The `__` tells everyone: *"this is private -- do not touch from outside."*
+:::
+
+## How: step 2 -- give safe methods to use it
+
+If data is hidden, we provide **methods** to work with it **safely**:
+
+```python
+class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.__balance = balance
+
+    def deposit(self, amount):
+        if amount > 0:                     # rule: must be positive
+            self.__balance += amount
+
+    def withdraw(self, amount):
+        if 0 < amount <= self.__balance:   # rule: cannot overdraw
+            self.__balance -= amount
+
+    def get_balance(self):                 # safe way to read it
+        return self.__balance
+```
+
+## How: step 3 -- use it safely
+
+```python
+acc = BankAccount("Alice", 100)
+
+acc.deposit(50)
+print(acc.get_balance())    # 150
+
+acc.withdraw(1000)          # ignored -- not enough balance
+print(acc.get_balance())    # 150  (unchanged, protected!)
+```
+
+::: {.callout-tip}
+Now the balance can **only** change through rules we wrote. The object **protects itself**. That is encapsulation.
+:::
+
+## Encapsulation -- without vs with
+
+| Without encapsulation | With encapsulation |
+|-----------------------|--------------------|
+| Data is public | Data is **private** (`__name`) |
+| Anyone can set bad values | Methods **check the rules** |
+| Object cannot protect itself | Object **stays valid** |
+
+::: {.callout-note}
+**Why we need it:** safety. The object guards its own data so the program can't break it by accident.
+:::
+
+---
+
+# Pillar 2 -- Inheritance
+
+---
+
+## Pillar 2
+
+<div class="pillar-banner">
+  <div class="num">PILLAR 2 OF 4</div>
+  <div class="name">Inheritance</div>
+  <div class="tag">A new class <strong>reuses</strong> an existing class.</div>
+</div>
+
+::: {.callout-note}
+Like a child **inheriting** features from a parent -- the new class gets the parent's data and methods for free.
+:::
+
+## What is inheritance?
+
+<div class="big-center">
+Inheritance lets a <strong>new class</strong> (child) reuse<br>everything from an <strong>existing class</strong> (parent).
+</div>
+
+- The **parent** class has the general features
+- The **child** class gets them **automatically**
+- The child can **add** new features or **change** old ones
+
+::: {.callout-note}
+Words you'll hear: **parent / child**, or **base / derived**, or **super / sub** class. They mean the same thing.
+:::
+
+## Why do we need it? -- the problem
+
+Imagine a `Dog` and a `Cat`. Look at the **repetition**:
+
+```python
+class Dog:
+    def __init__(self, name):
+        self.name = name
+    def eat(self):
+        print(f"{self.name} is eating.")
+    def sleep(self):
+        print(f"{self.name} is sleeping.")
+
+class Cat:
+    def __init__(self, name):
+        self.name = name
+    def eat(self):                       # exactly the same!
+        print(f"{self.name} is eating.")
+    def sleep(self):                     # exactly the same!
+        print(f"{self.name} is sleeping.")
+```
+
+::: {.callout-important}
+`eat` and `sleep` are **copied**. If we fix a bug in one, we must remember the other. This breaks the **DRY** rule (Don't Repeat Yourself).
+:::
+
+## Real-life analogy
+
+Think of **animals** in general.
+
+- **All animals** can eat and sleep → put that in a parent `Animal`
+- A **dog** is an animal that *also* barks
+- A **cat** is an animal that *also* meows
+
+::: {.callout-note}
+We write the **shared** part once in `Animal`, then each child **adds** only what is special.
+:::
+
+## How: step 1 -- write the parent
+
+Put the **shared** features in a parent class `Animal`:
+
+```python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def eat(self):
+        print(f"{self.name} is eating.")
+
+    def sleep(self):
+        print(f"{self.name} is sleeping.")
+```
+
+::: {.callout-note}
+Everything **every** animal can do lives here -- written **once**.
+:::
+
+## How: step 2 -- children inherit it
+
+A child names its parent **in the parentheses**:
+
+```python
+class Dog(Animal):        # Dog inherits from Animal
+    def bark(self):
+        print(f"{self.name} says Woof!")
+
+class Cat(Animal):        # Cat inherits from Animal
+    def meow(self):
+        print(f"{self.name} says Meow!")
+```
+
+::: {.callout-tip}
+We did **not** rewrite `eat`, `sleep`, or `__init__`. The children got them **for free**.
+:::
+
+## How: step 3 -- use the children
+
+```python
+rex = Dog("Rex")
+rex.eat()      # Rex is eating.    (inherited from Animal)
+rex.bark()     # Rex says Woof!    (Dog's own method)
+
+kitty = Cat("Kitty")
+kitty.sleep()  # Kitty is sleeping.  (inherited)
+kitty.meow()   # Kitty says Meow!    (Cat's own method)
+```
+
+::: {.callout-note}
+Each child has **both** the inherited methods **and** its own special ones.
+:::
+
+## Adding to the parent's setup with `super()`
+
+What if a `Dog` also needs a **breed**? We **extend** `__init__`:
+
+```python
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)     # run Animal's __init__ first
+        self.breed = breed         # then add Dog's own data
+
+rex = Dog("Rex", "Labrador")
+print(rex.name)    # Rex      (set by Animal via super())
+print(rex.breed)   # Labrador (set by Dog)
+```
+
+::: {.callout-note}
+`super()` means **"the parent."** `super().__init__(name)` reuses the parent's setup instead of copying it.
+:::
+
+## Inheritance -- without vs with
+
+| Without inheritance | With inheritance |
+|---------------------|------------------|
+| Copy shared code into every class | Write shared code **once** in the parent |
+| Fix bugs in many places | Fix in **one** place |
+| Classes unrelated | Clear **"is-a"** relationship (a Dog **is an** Animal) |
+
+::: {.callout-note}
+**Why we need it:** reuse. Share common code through a parent, and let each child add only what is special.
+:::
+
+---
+
+# Pillar 3 -- Polymorphism
+
+---
+
+## Pillar 3
+
+<div class="pillar-banner">
+  <div class="num">PILLAR 3 OF 4</div>
+  <div class="name">Polymorphism</div>
+  <div class="tag">The <strong>same action</strong> behaves differently for different objects.</div>
+</div>
+
+::: {.callout-note}
+The word means **"many shapes"**: *poly* = many, *morph* = shape. One name, many behaviours.
+:::
+
+## What is polymorphism?
+
+<div class="big-center">
+Polymorphism means we can call the <strong>same method name</strong><br>on different objects and each one <strong>does its own thing</strong>.
+</div>
+
+- We write `animal.speak()`
+- A dog **barks**, a cat **meows**, a cow **moos**
+- **Same call**, different result -- depending on the object
+
+::: {.callout-note}
+We don't need to know *which* animal it is. We just say `speak()` and trust each one to respond correctly.
+:::
+
+## Why do we need it? -- the problem
+
+Without polymorphism, we **check the type** every time:
+
+```python
+def make_sound(animal):
+    if animal.kind == "dog":
+        print("Woof!")
+    elif animal.kind == "cat":
+        print("Meow!")
+    elif animal.kind == "cow":
+        print("Moo!")
+    # ... a new animal? edit this function AGAIN
+```
+
+::: {.callout-important}
+Every new animal forces us to **edit this function** and add another `elif`. Messy and easy to forget.
+:::
+
+## Real-life analogy
+
+Think of a **"Play" button**.
+
+- Press Play on a **song** → music plays
+- Press Play on a **video** → video plays
+- Press Play on a **game** → game starts
+
+::: {.callout-note}
+**Same button** ("Play"), but each thing knows **how to play itself**. You don't press a different button for each.
+:::
+
+## How: each class defines the same method
+
+Give every class a method with the **same name**, `speak`:
+
+```python
+class Dog(Animal):
+    def speak(self):
+        print(f"{self.name} says Woof!")
+
+class Cat(Animal):
+    def speak(self):
+        print(f"{self.name} says Meow!")
+
+class Cow(Animal):
+    def speak(self):
+        print(f"{self.name} says Moo!")
+```
+
+::: {.callout-note}
+Same method **name** (`speak`), different **body** in each class. That is the heart of polymorphism.
+:::
+
+## How: one loop handles them all
+
+```python
+animals = [Dog("Rex"), Cat("Kitty"), Cow("Daisy")]
+
+for animal in animals:
+    animal.speak()      # same call -- each does its own thing
+```
+
+**Output:**
+```
+Rex says Woof!
+Kitty says Meow!
+Daisy says Moo!
+```
+
+::: {.callout-tip}
+No `if/elif` checking the type! We just call `speak()` and each object responds correctly.
+:::
+
+## The big win: easy to extend
+
+Add a brand-new animal -- **no existing code changes**:
+
+```python
+class Duck(Animal):
+    def speak(self):
+        print(f"{self.name} says Quack!")
+
+animals.append(Duck("Donald"))
+
+for animal in animals:
+    animal.speak()      # the loop already works for Duck too!
+```
+
+::: {.callout-tip}
+The loop never mentioned "Duck". Polymorphism let it work **automatically**.
+:::
+
+## Polymorphism -- without vs with
+
+| Without polymorphism | With polymorphism |
+|----------------------|-------------------|
+| `if/elif` to check each type | Just call the **same method** |
+| New type → edit old code | New type → **add a class**, nothing else |
+| Fragile and long | Short and flexible |
+
+::: {.callout-note}
+**Why we need it:** flexibility. Treat different objects the **same way**, and let each decide how to respond.
+:::
+
+---
+
+# Pillar 4 -- Abstraction
+
+---
+
+## Pillar 4
+
+<div class="pillar-banner">
+  <div class="num">PILLAR 4 OF 4</div>
+  <div class="name">Abstraction</div>
+  <div class="tag">Hide the complex details; show a <strong>simple interface</strong>.</div>
+</div>
+
+::: {.callout-note}
+To **abstract** means to focus on **what** something does, and hide **how** it does it.
+:::
+
+## What is abstraction?
+
+<div class="big-center">
+Abstraction means showing only the <strong>essential</strong> features<br>and hiding the <strong>complicated inner workings</strong>.
+</div>
+
+- The user sees a **simple** set of actions
+- The **complex code** is hidden inside
+- You use the object **without** knowing how it works internally
+
+::: {.callout-note}
+Encapsulation hides the **data**. Abstraction hides the **complexity** -- the messy "how". They work together.
+:::
+
+## Why do we need it? -- real-life analogy
+
+Think of **driving a car**.
+
+- To drive, you use: the **steering wheel**, **pedals**, **gear**
+- You do **not** need to understand fuel injection, spark timing, or the gearbox internals
+- The complex engine is **hidden** behind a simple interface
+
+::: {.callout-tip}
+Abstraction lets us **use** powerful things through a **simple** set of controls -- without being experts in the internals.
+:::
+
+## Why in code? -- the problem
+
+Imagine sending an email. The *real* steps are complex:
+
+```text
+connect to server → authenticate → format headers →
+encode body → open SMTP socket → handle errors → close ...
+```
+
+::: {.callout-important}
+If **every** programmer had to write all of that each time, code would be huge and full of mistakes.
+:::
+
+::: {.callout-note}
+Abstraction lets us hide all those steps behind **one simple method**: `send()`.
+:::
+
+## How: hide the steps behind a simple method
+
+The complex steps live **inside**, as helper methods. The user sees only `send()`:
+
+```python
+class EmailSender:
+    def send(self, to, message):       # the only thing users call
+        self.__connect()
+        self.__authenticate()
+        self.__deliver(to, message)
+
+    def __connect(self):        # hidden detail
+        print("Connecting to server...")
+    def __authenticate(self):   # hidden detail
+        print("Logging in...")
+    def __deliver(self, to, message):  # hidden detail
+        print(f"Sending to {to}: {message}")
+```
+
+## How: the user's view is simple
+
+```python
+sender = EmailSender()
+sender.send("alice@mail.com", "Hello!")
+```
+
+**Output:**
+```
+Connecting to server...
+Logging in...
+Sending to alice@mail.com: Hello!
+```
+
+::: {.callout-tip}
+The user wrote **one line**. All the hard work is **hidden** behind `send()`. That is abstraction.
+:::
+
+## Enforcing abstraction with an abstract class
+
+Python can **force** every child to provide a method using an **abstract base class**:
+
+```python
+from abc import ABC, abstractmethod
+
+class Shape(ABC):                  # ABC = Abstract Base Class
+    @abstractmethod
+    def area(self):                # children MUST define this
+        pass
+
+class Circle(Shape):
+    def __init__(self, r):
+        self.r = r
+    def area(self):                # required -- so we provide it
+        return 3.14 * self.r ** 2
+```
+
+::: {.callout-note}
+`Shape` defines **what** every shape must do (`area`), but not **how**. Each child fills in the details.
+:::
+
+## Why an abstract class helps
+
+```python
+shape = Shape()        # Error: cannot create an abstract class
+
+circle = Circle(5)
+print(circle.area())   # 78.5
+```
+
+::: {.callout-important}
+You **cannot** create a plain `Shape` -- it is only a **template**. Any child that forgets `area()` will also fail. The rule is **enforced**.
+:::
+
+## Abstraction -- without vs with
+
+| Without abstraction | With abstraction |
+|---------------------|------------------|
+| User sees all the messy steps | User sees a **simple** method |
+| Easy to use it wrong | Hard to misuse -- details hidden |
+| Repeated complex code | Complexity written **once**, inside |
+
+::: {.callout-note}
+**Why we need it:** simplicity. Show a clean, easy interface and hide the complicated "how" inside.
+:::
+
+---
+
+# Putting It All Together
+
+---
+
+## The four pillars side by side
+
+| Pillar | One-line idea | Why we need it |
+|--------|---------------|----------------|
+| **Encapsulation** | Keep data **private**, change it through methods | **Safety** |
+| **Inheritance** | A child class **reuses** a parent | **Reuse** |
+| **Polymorphism** | Same method, **different** behaviour | **Flexibility** |
+| **Abstraction** | Hide the complex **"how"** | **Simplicity** |
+
+::: {.callout-tip}
+Four ideas, four reasons: **safe, reusable, flexible, simple** code.
+:::
+
+## How they work together
+
+These pillars are **not** separate tools -- they cooperate:
+
+::: {.callout-note}
+- **Inheritance** builds a family: `Animal → Dog, Cat`
+- **Polymorphism** lets us call `speak()` on the whole family
+- **Encapsulation** keeps each animal's data safe inside
+- **Abstraction** hides the messy details behind simple methods
+:::
+
+::: {.callout-tip}
+Good OOP design uses **all four** together, naturally.
+:::
+
+## A tiny example using all four
+
+```python
+from abc import ABC, abstractmethod
+
+class Animal(ABC):                 # Abstraction: a template
+    def __init__(self, name):
+        self.__name = name         # Encapsulation: private data
+    def get_name(self):
+        return self.__name
+    @abstractmethod
+    def speak(self):               # children must define it
+        pass
+
+class Dog(Animal):                 # Inheritance: reuse Animal
+    def speak(self):
+        print(f"{self.get_name()} says Woof!")
+
+class Cat(Animal):                 # Inheritance again
+    def speak(self):
+        print(f"{self.get_name()} says Meow!")
+
+for a in [Dog("Rex"), Cat("Kitty")]:
+    a.speak()                      # Polymorphism: same call
+```
+
+::: {.callout-tip}
+All four pillars in one small program. This is what real OOP looks like.
+:::
+
+---
+
+# Quick Quiz -- Check Yourself 🎯
+
+---
+
+## Q1 / 6
+
+<div class="q-number">Question 1 of 6 -- Encapsulation</div>
+<div class="qcm-question">What does putting <code>__</code> before an attribute name do?</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">A.</span> Deletes the attribute</button>
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">B.</span> Makes it private -- hidden from outside</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> Makes it run faster</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> Turns it into a method</button>
+</div>
+
+## Q2 / 6
+
+<div class="q-number">Question 2 of 6 -- Pillars</div>
+<div class="qcm-question">Which pillar means "a new class reuses an existing class"?</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">A.</span> Encapsulation</button>
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">B.</span> Inheritance</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> Polymorphism</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> Abstraction</button>
+</div>
+
+## Q3 / 6
+
+<div class="q-number">Question 3 of 6 -- Inheritance</div>
+<div class="qcm-question">In <code>class Dog(Animal):</code>, what is <code>Animal</code>?</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">A.</span> The parent (base) class</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">B.</span> The child class</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> An object</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> A method</button>
+</div>
+
+## Q4 / 6
+
+<div class="q-number">Question 4 of 6 -- Inheritance</div>
+<div class="qcm-question">What does <code>super().__init__(name)</code> do?</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">A.</span> Creates a new object</button>
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">B.</span> Runs the parent class's <code>__init__</code></button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> Deletes the parent class</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> Makes the class abstract</button>
+</div>
+
+## Q5 / 6
+
+<div class="q-number">Question 5 of 6 -- Polymorphism</div>
+<div class="qcm-question">Calling <code>speak()</code> on a Dog and a Cat gives different sounds. This is...</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">A.</span> Encapsulation</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">B.</span> Abstraction</button>
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">C.</span> Polymorphism</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> Inheritance</button>
+</div>
+
+## Q6 / 6
+
+<div class="q-number">Question 6 of 6 -- Abstraction</div>
+<div class="qcm-question">An <code>@abstractmethod</code> in an abstract base class means...</div>
+<div class="qcm-grid">
+  <button class="qcm-option" data-correct="true"  onclick="qcm(this, true)"><span class="badge">·</span><span class="qcm-label">A.</span> Every child class must define that method</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">B.</span> The method is private</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">C.</span> The method runs automatically</button>
+  <button class="qcm-option" data-correct="false" onclick="qcm(this, false)"><span class="badge">·</span><span class="qcm-label">D.</span> The method cannot have a body ever</button>
+</div>
+
+---
+
+# Your Turn -- Practice 🛠️
+
+---
+
+## Practice -- How it works
+
+Three short exercises -- **one pillar at a time**. Try each yourself first, then check the solution.
+
+::: {.callout-tip}
+Use the same habit as last week:
+data in `__init__` → behaviour in methods → use `self` to reach the object's own data.
+:::
+
+::: {.callout-note}
+Take your time. It is fine to look back at the slides for help.
+:::
+
+---
+
+# Exercise 1 -- Encapsulation
+
+## A Protected `Temperature`
+
+**Task:** Create a class `Temperature` that:
+
+1. Stores a **private** attribute `__celsius` in `__init__`
+2. Has a method `set_celsius(value)` that updates it **only if** the value is `-273` or higher (absolute zero)
+3. Has a method `get_celsius()` that returns the current value
+
+Create one object, try to set `-500` (should be **rejected**), then set `25`.
+
+**Expected output:**
+```
+20
+20
+25
+```
+
+::: {.callout-note}
+## Hint
+Inside `set_celsius`, check `if value >= -273:` before storing. Use `self.__celsius` for the private data.
+:::
+
+## Exercise 1 -- Sample Solution
+
+```python
+class Temperature:
+    def __init__(self, celsius):
+        self.__celsius = celsius
+
+    def set_celsius(self, value):
+        if value >= -273:
+            self.__celsius = value
+
+    def get_celsius(self):
+        return self.__celsius
+
+t = Temperature(20)
+print(t.get_celsius())   # 20
+t.set_celsius(-500)      # rejected
+print(t.get_celsius())   # 20  (unchanged)
+t.set_celsius(25)
+print(t.get_celsius())   # 25
+```
+
+**Pillar practiced:** Encapsulation -- private data + safe methods with a rule
+
+---
+
+# Exercise 2 -- Inheritance
+
+## `Vehicle` → `Car`
+
+**Task:**
+
+1. Create a parent class `Vehicle` with `__init__(self, brand)` and a method `start()` that prints `"<brand> is starting."`
+2. Create a child class `Car(Vehicle)` that adds `__init__(self, brand, doors)` -- use `super()` to set `brand`, then store `doors`
+3. Add a method `honk()` that prints `"<brand> says Beep!"`
+
+Create a `Car`, call `start()` (inherited) and `honk()` (its own).
+
+**Expected output:**
+```
+Toyota is starting.
+Toyota says Beep!
+4
+```
+
+::: {.callout-note}
+## Hint
+In `Car.__init__`, call `super().__init__(brand)` first, then `self.doors = doors`.
+:::
+
+## Exercise 2 -- Sample Solution
+
+```python
+class Vehicle:
+    def __init__(self, brand):
+        self.brand = brand
+
+    def start(self):
+        print(f"{self.brand} is starting.")
+
+class Car(Vehicle):
+    def __init__(self, brand, doors):
+        super().__init__(brand)     # reuse parent's setup
+        self.doors = doors
+
+    def honk(self):
+        print(f"{self.brand} says Beep!")
+
+car = Car("Toyota", 4)
+car.start()           # Toyota is starting.  (inherited)
+car.honk()            # Toyota says Beep!     (own method)
+print(car.doors)      # 4
+```
+
+**Pillar practiced:** Inheritance -- parent/child, `super()`, reusing methods
+
+---
+
+# Exercise 3 -- Polymorphism
+
+## Many Shapes, One `area()`
+
+**Task:**
+
+1. Create three classes: `Square`, `Rectangle`, `Circle`
+2. Each has an `__init__` for its measurements and a method `area()`
+3. Put one of each in a list and **loop** through, printing each area -- using the **same** `area()` call
+
+**Expected output:**
+```
+Square area: 16
+Rectangle area: 24
+Circle area: 78.5
+```
+
+::: {.callout-note}
+## Hint
+Square area = `side * side`. Rectangle = `width * height`. Circle = `3.14 * r * r`. The loop just calls `shape.area()`.
+:::
+
+## Exercise 3 -- Sample Solution
+
+```python
+class Square:
+    def __init__(self, side):
+        self.side = side
+    def area(self):
+        return self.side * self.side
+
+class Rectangle:
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+    def area(self):
+        return self.w * self.h
+
+class Circle:
+    def __init__(self, r):
+        self.r = r
+    def area(self):
+        return 3.14 * self.r * self.r
+
+shapes = [Square(4), Rectangle(6, 4), Circle(5)]
+names  = ["Square", "Rectangle", "Circle"]
+
+for name, shape in zip(names, shapes):
+    print(f"{name} area: {shape.area()}")
+```
+
+**Pillar practiced:** Polymorphism -- same method name, different behaviour, one loop
+
+---
+
+## What we learned today
+
+| Pillar | What it is | Why we need it |
+|--------|------------|----------------|
+| **Encapsulation** | Private data + safe methods | Keep data **safe** |
+| **Inheritance** | Child reuses parent | Avoid **repeating** code |
+| **Polymorphism** | Same call, different behaviour | Stay **flexible** |
+| **Abstraction** | Hide the complex details | Keep it **simple** |
+
+::: {.callout-tip}
+You now know the **whole structure** of OOP: classes, objects, and the four pillars that make it powerful.
+:::
+
+## What comes next
+
+You can now **read** and **design** real object-oriented programs.
+
+::: {.callout-note}
+To keep growing, practise:
+
+- Modelling real things as classes (a `Library`, a `Game`, a `Shop`)
+- Building small **class families** with inheritance
+- Letting a loop work over many types with polymorphism
+:::
+
+::: {.callout-tip}
+The best way to learn OOP is to **build** with it. Take a small idea and turn it into classes. 🚀
+:::
+
+---
+
+<div style="text-align:center; margin-top: 80px; line-height: 1.6;">
+  <h1 style="font-size: 3em; font-weight: 700; color: #C41E3A;">Thank You</h1>
+  <div style="border-bottom: 3px solid #C41E3A; width: 30%; margin: 24px auto;"></div>
+  <h3 style="font-weight: 700; color: #050E3C; margin-top: 30px;">MIN Sothearith</h3>
+  <h4 style="font-weight: 400; color: #666;">Phnom Penh International University</h4>
+</div>
